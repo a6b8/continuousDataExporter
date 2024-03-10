@@ -1,6 +1,6 @@
 [![CircleCI](https://img.shields.io/circleci/build/github/a6b8/dataExporter/main)]() ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
-# dataExporter
+# Continuous Data Exporter
 This module helps efficiently process continuous incoming data packets. And depending on the `type`, it sends with the corresponding method.
 
 ## Features:
@@ -17,7 +17,7 @@ This module helps efficiently process continuous incoming data packets. And depe
 This example shows how to query public Nodes with Node.js.
 
 ## Table of Contents
-- [dataExporter](#dataexporter)
+- [Continuous Data Exporter](#continuous-data-exporter)
   - [Features:](#features)
   - [Quickstart](#quickstart)
     - [Code](#code)
@@ -30,6 +30,27 @@ This example shows how to query public Nodes with Node.js.
 
 
 ## Overview
+
+Supported Types
+
+| Typ    | Description                          |
+|--------|--------------------------------------|
+| Http Get    | Request Parameters in URL            |
+| Http Post   | Request Parameters as JSON body     |
+| Local | |
+
+
+Destinations
+
+| Name       | Description                        |
+|------------|------------------------------------|
+| Name (ID)  |                                    |
+| Headers    |                                    |
+| Request Typ|                                    |
+| URL ||
+| Concurrent Requests | |
+| Delay | |
+
 
 
 ## Methods
