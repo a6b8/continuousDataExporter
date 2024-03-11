@@ -1,5 +1,5 @@
 {
-  "name": "continuous-data-exporter",
+  "name": "continuous-exporter",
   "version": "1.0.0",
   "description": "",
   "main": "./src/index.mjs",
