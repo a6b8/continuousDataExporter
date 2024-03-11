@@ -1,3 +1,4 @@
-import { Exporter } from '../src/exporter/Exporter.mjs'
+import { Exporter } from './exporter/Exporter.mjs'
+import { getDemoDataSorted, getDemoDataUnsorted, sendDemoData } from './helpers/demodata.mjs'
 
-export { Exporter } 
+export { Exporter, getDemoDataSorted, getDemoDataUnsorted, sendDemoData }

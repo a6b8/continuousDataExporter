@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { URL } from 'url'
 
 
@@ -28,6 +27,21 @@ function printMessages( { messages=[], comments=[] } ) {
 }
 
 
+function printConsole( { first, second } ) {
+    if( first !== undefined ) {
+        const space = new Array( 25 - first.length ).fill( ' ' ).join( '' )
+        process.stdout.write( `${first}${space}` )
+    }
+
+    if( second !== undefined ) {
+        const greenColor = '\x1b[32m';
+        const resetColor = '\x1b[0m';
+        console.log( greenColor + second + resetColor )
+    }
+} 
+
+
+
 function isValidUrl( str ) {
     try {
         new URL( str )
@@ -38,4 +52,4 @@ function isValidUrl( str ) {
 }
 
 
-export { printMessages, isValidUrl }
+export { printMessages, isValidUrl, printConsole }
