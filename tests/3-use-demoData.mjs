@@ -35,6 +35,6 @@ const config = {
 }
 
 
-const exporter = new Exporter( true )
+const exporter = new Exporter( false )
 exporter.setRoutes( { 'routes': config['routes'] } )
 await sendDemoData( { exporter, 'keys': config['keys'] } )

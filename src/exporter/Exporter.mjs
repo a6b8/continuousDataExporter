@@ -50,11 +50,11 @@ class Exporter {
         this.#queue[ routeName ]['queue'].push( obj )
         this.#queue[ routeName ]['nonceSum']++
         if( !this.#queue[ routeName ]['running'] ) {
-            !this.#silent ? printConsole( { 'first': `Route ${routeName}`, 'second': `start` } ) : ''
+            !this.#silent ? printConsole( { 'first': `Route ${routeName}`, 'second': `start |           |` } ) : ''
             this.#queue[ routeName ]['running'] = true
             this.#startSending( { 'type': this.#queue[ routeName ]['type'], routeName } )
                 .then( a => {
-                    !this.#silent ? printConsole( { 'first': `Route ${routeName}`, 'second': `end` } ) : ''
+                    !this.#silent ? printConsole( { 'first': `Route ${routeName}`, 'second': `end   |           |` } ) : ''
                 } )
         }
 
@@ -69,18 +69,12 @@ class Exporter {
         while( this.#queue[ routeName ]['running'] ) {
             const result = this.#queue[ routeName ]['queue'].slice( 0, concurrentRequests )
             this.#queue[ routeName ]['queue'].splice( 0, concurrentRequests )
-
             this.#queue[ routeName ]['nonce'] += result.length
-            let second = ''
-            second += `${this.#queue[ routeName ]['nonce']}`
-            second += `/`
-            second += `${this.#queue[ routeName ]['nonceSum']} `
-            second += `${JSON.stringify( result.map( a => a['id'] ) )}`
 
-            printConsole( { 
-                'first': `  ${routeName}`, 
-                second
-            } )
+            if( !this.#silent ) {
+                const { first, second } = this.#generateStatusMessage( { routeName, result } )
+                printConsole( { first, second } )
+            }
 
             await delay( delayInMs )
 
@@ -90,6 +84,33 @@ class Exporter {
         }
 
         return true
+    }
+
+
+    #generateStatusMessage( { routeName, result } ) {
+        const nonce = this.#queue[routeName]['nonce']
+        const nonceSum = this.#queue[routeName]['nonceSum']
+        const percent = Math.round( ( nonce * 100 ) / nonceSum )
+
+        const spacer = new Array( 3 - `${percent}`.length )
+            .fill( ' ' )
+            .join( '' )
+        const percentStr = `${spacer}${percent}`
+   
+        const s = `${nonce}/${nonceSum}`
+        const n = 9 - s.length
+        let spacer2 = ( n > 0 ) ? new Array( n ).fill( ' ' ).join( '' ) : ''
+
+        let first = '' 
+        first += `  ${routeName}`
+
+        let second = ''
+        second += `${percentStr} % | `
+        second += `${spacer2}${s} | `
+        second += ``
+        second += `${result.map( a => a['id'] ).join(', ')}`
+
+        return { first, second }
     }
 
 /*
