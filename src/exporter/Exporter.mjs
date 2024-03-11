@@ -5,16 +5,16 @@ import axios from 'axios'
 
 class Exporter {
     #config
-    #state
     #queue
     #silent
+    #state
 
 
     constructor( silent=false ) {
         this.#silent = silent
         this.#config = config
         this.#state = {
-            'routes': []
+            'queueIsReady': false
         }
 
         return true
@@ -37,13 +37,14 @@ class Exporter {
                 delete acc[ a['name'] ]['name']
                 return acc
             }, {} )
+        this.#state['queueIsReady'] = true
 
         return true
     }
 
 
     sendData( { routeName, obj } ) {
-        const [ messages, comments ] = this.#validateSendData( { routeName, obj, routes: this.#state['routes'] } )
+        const [ messages, comments ] = this.#validateSendData( { routeName, obj } )
         printMessages( { messages, comments } )
 
         this.#queue[ routeName ]['queue'].push( obj )
@@ -91,7 +92,7 @@ class Exporter {
         return true
     }
 
-
+/*
     async #postRequest() {
         console.log( 'Sending POST Request' )
         const msg = this.#state['msg']
@@ -108,7 +109,7 @@ class Exporter {
         console.log( 'Response:', response.data )
         return response
     }
-
+*/
 
     #validateRoutes( { routes } ) {
         const messages = []
@@ -239,12 +240,8 @@ class Exporter {
             messages.push( `Object is empty.` )
         }
 
-        if( routes === undefined ) {
+        if( !this.#state['queueIsReady'] ) {
             messages.push( `Routes are not defined.` )
-        } else if( Array.isArray( routes ) === false ) {
-            messages.push( `Routes must be an array.` )
-        } else if( routes.length === 0 ) {
-            messages.push( `No routes defined.` )
         }
 
         return [ messages, comments ]
