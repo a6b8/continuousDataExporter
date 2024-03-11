@@ -43,7 +43,7 @@ class Exporter {
 
 
     sendData( { routeName, obj } ) {
-        const [ messages, comments ] = this.#validateSendData( { routeName, obj } )
+        const [ messages, comments ] = this.#validateSendData( { routeName, obj, routes: this.#state['routes'] } )
         printMessages( { messages, comments } )
 
         this.#queue[ routeName ]['queue'].push( obj )
@@ -215,7 +215,7 @@ class Exporter {
     }
 
 
-    #validateSendData( { routeName, obj } ) {
+    #validateSendData( { routeName, obj, routes } ) {
         const messages = []
         const comments = []
 
@@ -237,6 +237,14 @@ class Exporter {
             messages.push( `Object is not type of 'object'.` )
         } else if( Object.keys( obj ).length === 0 ) {
             messages.push( `Object is empty.` )
+        }
+
+        if( routes === undefined ) {
+            messages.push( `Routes are not defined.` )
+        } else if( Array.isArray( routes ) === false ) {
+            messages.push( `Routes must be an array.` )
+        } else if( routes.length === 0 ) {
+            messages.push( `No routes defined.` )
         }
 
         return [ messages, comments ]
