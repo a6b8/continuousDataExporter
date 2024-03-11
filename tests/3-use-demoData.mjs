@@ -1,4 +1,4 @@
-import { Exporter, getDemoDataSorted, getDemoDataUnsorted, sendDemoData } from '../src/index.mjs'
+import { Exporter, sendDemoData } from '../src/index.mjs'
 
 const config = {
     'routes': [
@@ -35,6 +35,6 @@ const config = {
 }
 
 
-const exporter = new Exporter()
+const exporter = new Exporter( true )
 exporter.setRoutes( { 'routes': config['routes'] } )
 await sendDemoData( { exporter, 'keys': config['keys'] } )

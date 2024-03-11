@@ -21,6 +21,27 @@ class Exporter {
     }
 
 
+    setRoutes( { routes, obj } ) {
+        const [ messages, comments ] = this.#validateRoutes( { routes } )
+        printMessages( { messages, comments } )
+
+        this.#queue = routes
+            .reduce( ( acc, a, index ) => {
+                acc[ a['name'] ] = { 
+                    ...a, 
+                    'queue': [], 
+                    'running': false, 
+                    'nonce': 0,
+                    'nonceSum': 0
+                }
+                delete acc[ a['name'] ]['name']
+                return acc
+            }, {} )
+
+        return true
+    }
+
+
     sendData( { routeName, obj } ) {
         const [ messages, comments ] = this.#validateSendData( { routeName, obj } )
         printMessages( { messages, comments } )
@@ -66,27 +87,6 @@ class Exporter {
                 this.#queue[ routeName ]['running'] = false
             }
         }
-
-        return true
-    }
-
-
-    setRoutes( { routes, obj } ) {
-        const [ messages, comments ] = this.#validateRoutes( { routes } )
-        printMessages( { messages, comments } )
-
-        this.#queue = routes
-            .reduce( ( acc, a, index ) => {
-                acc[ a['name'] ] = { 
-                    ...a, 
-                    'queue': [], 
-                    'running': false, 
-                    'nonce': 0,
-                    'nonceSum': 0
-                }
-                delete acc[ a['name'] ]['name']
-                return acc
-            }, {} )
 
         return true
     }

@@ -10,46 +10,43 @@ This module helps efficiently process continuous incoming data packets. And depe
 
 ## Quickstart
 
-// To Do
+```
+npm i continuous-exporter
+```
+Diese Beispiel erstellt über `sendDemoData()`
 
-### Code
+```js
+```
 
-This example shows how to query public Nodes with Node.js.
 
 ## Table of Contents
 - [Continuous Exporter](#continuous-exporter)
   - [Features:](#features)
   - [Quickstart](#quickstart)
-    - [Code](#code)
   - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
+  - [Routes](#routes)
+    - [Get](#get)
+    - [Post](#post)
+    - [Local](#local)
   - [Methods](#methods)
     - [constructor()](#constructor)
-    - [send()](#send)
+    - [setRoutes()](#setroutes)
+    - [sendData()](#senddata)
+  - [DemoData](#demodata)
+    - [getDemoDataUnsorted()](#getdemodataunsorted)
+    - [getDemoDataSorted()](#getdemodatasorted)
+    - [sendDemoData()](#senddemodata)
   - [License](#license)
 
 
-## Overview
+## Routes
 
-Supported Types
+### Get
 
-| Typ    | Description                          |
-|--------|--------------------------------------|
-| Http Get    | Request Parameters in URL            |
-| Http Post   | Request Parameters as JSON body     |
-| Local | |
+### Post
 
+### Local
 
-Destinations
-
-| Name       | Description                        |
-|------------|------------------------------------|
-| Name (ID)  |                                    |
-| Headers    |                                    |
-| Request Typ|                                    |
-| URL ||
-| Concurrent Requests | |
-| Delay | |
 
 
 
@@ -57,7 +54,27 @@ Destinations
 
 ### constructor()
 
-### send()
+
+### setRoutes()
+
+### sendData()
+
+
+## DemoData
+
+Um die Anwendung zu testen muss ein Datenfluss simuliert werden. Hierfür wurde in dem Modul hilfsfunktionen hinterlegt die das testen und ausprobieren stark vereinfachen. Die einzelnen Funktionen bauen hierbei aufeinander auf. 
+
+- `getDemoDataUnsorted` erstellt Daten die ein Object zurückgeben, das in key/value pairs unterteilt ist.  
+- `getDemoDataSorted()` erstellt aus den Daten `getDemoDataUnsorted()` eine Fluss an hintereinander abwechselnden Chunks von Daten. 
+- `sendDemoData()` sendet die Daten von `getDemoDataUnsorted()` asynchron an das `Exporter` Modul
+
+
+
+### getDemoDataUnsorted()
+
+### getDemoDataSorted()
+
+### sendDemoData()
 
 
 ## License
