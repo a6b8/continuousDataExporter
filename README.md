@@ -64,7 +64,7 @@ exporter.sendData( {
 Initialization of routes is done via `setRoutes( { routes=[] })`. There are currently 3 different methods that can be used for sending:
 
 1. `get` Webhook: Here, a URL is retrieved via a `get` request and the data is passed in the URL.
-2. Post Request: Here, data is transferred in the `body` as a `jsonObject` via a `post` request.
+2. `post` Request: Here, data is transferred in the `body` as a `jsonObject` via a `post` request.
 3. `local`: Here, the data can be stored in a folder.
 
 ### Webhook (get)
