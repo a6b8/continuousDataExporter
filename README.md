@@ -24,10 +24,10 @@ const routes = [
     {
         'name': 'myRoute',
         'headers': { 'authentification': 'Bearer 123' },
-        'type': 'get',
+        'requestType': 'get',
         'url': 'http://localhost:3000/get',
         'concurrentRequests': 5,
-        'delayInMs': 5000
+        'delayPerLoopInMs': 5000
     }
 ]
 
@@ -63,9 +63,9 @@ exporter.sendData( {
 
 Initialization of routes is done via `setRoutes( { routes=[] })`. There are currently 3 different methods that can be used for sending:
 
-1. Webhook: Here, a URL is retrieved via a `get` request and the data is passed in the URL.
+1. `get` Webhook: Here, a URL is retrieved via a `get` request and the data is passed in the URL.
 2. Post Request: Here, data is transferred in the `body` as a `jsonObject` via a `post` request.
-3. Local: Here, the data can be stored in a folder.
+3. `local`: Here, the data can be stored in a folder.
 
 ### Webhook (get)
 
@@ -82,7 +82,7 @@ This type allows small amounts of data to be transmitted as `get` requests. For 
 | `type`             | string  | The type of HTTP request (e.g., 'get', 'post').| yes     | The entry `'get'` selects the type "Webhook".                                                                               |
 | `url`                | string  | The URL of the route endpoint.                | yes      | A valid URL must be provided here. For example: "http://localhost:3000/get"                                                  |
 | `concurrentRequests` | number  | The number of concurrent requests.            | yes      | This value specifies how many concurrent requests can be made. For example; `5`                                             |
-| `delayInMs`          | number  | The delay between requests in milliseconds.   | yes      | This parameter defines the delay inserted between each loop. `concurrentRequests` can be used to specify how many requests are sent in one loop. |
+| `delayPerLoopInMs`          | number  | The delay between requests in milliseconds.   | yes      | This parameter defines the delay inserted between each loop. `concurrentRequests` can be used to specify how many requests are sent in one loop. |
 
 
 **Example**
@@ -93,10 +93,10 @@ const routes = [
     {
         'name': 'myName',
         'headers': { 'authentification': 'Bearer 123' },
-        'type': 'get',
+        'requestType': 'get',
         'url': 'http://localhost:3000/get',
         'concurrentRequests': 5,
-        'delayInMs': 5000
+        'delayPerLoopInMs': 5000
     }
 ]
 exporter.setRoutes( { routes } )
@@ -115,7 +115,7 @@ With the `post` request, larger amounts of data can be transmitted in the `body`
 | type               | string  | The type of HTTP request (e.g., 'get', 'post').| yes             | "get"                    |
 | url                | string  | The URL of the route endpoint.                | yes               | "http://localhost:3000/get" |
 | concurrentRequests| number  | The number of concurrent requests.            | yes               | 5                        |
-| delayInMs          | number  | The delay between requests in milliseconds.   | yes               | 5000                     |
+| delayPerLoopInMs          | number  | The delay between requests in milliseconds.   | yes               | 5000                     |
 
 **Example**
 
@@ -123,7 +123,7 @@ With the `post` request, larger amounts of data can be transmitted in the `body`
 const routes = [ {
   'name': 'post',
   'headers': { 'authentification': 'Bearer abc' },
-  'type': 'post',
+  'requestType': 'post',
   'url': 'http://localhost:3000/post',
   'concurrentRequests': 1,
 } ]
@@ -144,7 +144,7 @@ const routes = [ {
 | outFolder          | string  | The output folder for the local route.         | yes               | "/out"                   |
 | fileName           | string  | The filename for the local output.             | yes               | "out.txt"                |
 | concurrentRequests| number  | The number of concurrent requests.             | yes               | 3                        |
-| delayInMs          | number  | The delay between requests in milliseconds.    | yes               | 3000                     |
+| delayPerLoopInMs          | number  | The delay between requests in milliseconds.    | yes               | 3000                     |
 
 
 **Example**
@@ -152,11 +152,11 @@ const routes = [ {
 ```js
 {
     'name': 'local',
-    'type': 'local',
+    'requestType': 'local',
     'outFolder': '/out',
     'fileName': 'out.txt',
     'concurrentRequests': 3,
-    'delayInMs': 3000
+    'delayPerLoopInMs': 3000
 }
 ```
 
