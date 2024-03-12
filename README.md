@@ -22,10 +22,10 @@ import { Exporter } from 'continuous-exporter'
 
 const routes = [
     {
-        'name': 'myRoute',
-        'headers': { 'authentification': 'Bearer 123' },
+        'id': 'myRoute',
+        'requestHeaders': { 'authentification': 'Bearer 123' },
         'requestType': 'get',
-        'url': 'http://localhost:3000/get',
+        'requestUrl': 'http://localhost:3000/get',
         'concurrentRequests': 5,
         'delayPerLoopInMs': 5000
     }
@@ -91,10 +91,10 @@ This type allows small amounts of data to be transmitted as `get` requests. For 
 ...
 const routes = [
     {
-        'name': 'myName',
-        'headers': { 'authentification': 'Bearer 123' },
+        'id': 'myName',
+        'requestHeaders': { 'authentification': 'Bearer 123' },
         'requestType': 'get',
-        'url': 'http://localhost:3000/get',
+        'requestUrl': 'http://localhost:3000/get',
         'concurrentRequests': 5,
         'delayPerLoopInMs': 5000
     }
@@ -113,7 +113,7 @@ With the `post` request, larger amounts of data can be transmitted in the `body`
 | name               | string  | The name of the route endpoint.               | yes               | This parameter specifies the name under which the route is managed. It can only contain letters from a-zA-Z, numbers from 0-9, and hyphens. If multiple routes are created, it is important to ensure that the names are unique, as data is categorized using this name via `sendData`.                      |
 | headers            | object  | The header parameters for the request.        | yes               | { 'authentification': 'Bearer 123' } |
 | type               | string  | The type of HTTP request (e.g., 'get', 'post').| yes             | "get"                    |
-| url                | string  | The URL of the route endpoint.                | yes               | "http://localhost:3000/get" |
+| requestUrl                | string  | The URL of the route endpoint.                | yes               | "http://localhost:3000/get" |
 | concurrentRequests| number  | The number of concurrent requests.            | yes               | 5                        |
 | delayPerLoopInMs          | number  | The delay between requests in milliseconds.   | yes               | 5000                     |
 
@@ -121,11 +121,12 @@ With the `post` request, larger amounts of data can be transmitted in the `body`
 
 ```js
 const routes = [ {
-  'name': 'post',
-  'headers': { 'authentification': 'Bearer abc' },
+  'id': 'post',
+  'requestHeaders': { 'authentification': 'Bearer abc' },
   'requestType': 'post',
-  'url': 'http://localhost:3000/post',
+  'requestUrl': 'http://localhost:3000/post',
   'concurrentRequests': 1,
+  'delayPerLoopInMs': 1000
 } ]
 ```
 
@@ -151,7 +152,7 @@ const routes = [ {
 
 ```js
 {
-    'name': 'local',
+    'id': 'local',
     'requestType': 'local',
     'outFolder': '/out',
     'fileName': 'out.txt',
