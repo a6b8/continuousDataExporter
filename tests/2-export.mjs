@@ -5,25 +5,25 @@ const ex = new Exporter()
 ex.setRoutes( { 
     'routes': [
         {
-            'name': 'get',
-            'headers': { 'authentification': 'Bearer 123' },
-            'type': 'get',
-            'url': 'http://localhost:3000/get',
+            'routeId': 'get',
+            'routeType': 'get',
+            'requestUrl': 'http://localhost:3000/get',
+            'requestHeaders': { 'authentification': 'Bearer 123' },
             'concurrentRequests': 1,
             'delayInMs': 1000
         }
 /*
         ,{
-            'name': 'post',
-            'headers': { 'authentification': 'Bearer abc' },
-            'type': 'post',
-            'url': 'http://localhost:3000/post',
+            'routeId': 'post',
+            'routeType': 'post',
+            'requestUrl': 'http://localhost:3000/post',
+            'requestHeaders': { 'authentification': 'Bearer abc' },
             'concurrentRequests': 3,
             'delayInMs': 2000
         }
         ,{
-            'name': 'local',
-            'type': 'local',
+            'routeId': 'local',
+            'routeType': 'local',
             'outFolder': '/out',
             'fileName': 'out.txt',
             'concurrentRequests': 3,
@@ -37,19 +37,19 @@ ex.setRoutes( {
 
 const cmds = [
     {
-        'routeName': 'get',
+        'routeId': 'get',
         'obj': { 'abc': 123, 'def': 456 }
     },
     {
-        'routeName': 'get',
+        'routeId': 'get',
         'obj': { 'abc': 123, 'def': 456 }
     },
     {
-        'routeName': 'get',
+        'routeId': 'get',
         'obj': { 'abc': 123, 'def': 456 }
     },
     {
-        'routeName': 'get',
+        'routeId': 'get',
         'obj': { 'abc': 123, 'def': 456 }
     }
 ]

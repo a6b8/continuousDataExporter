@@ -7,7 +7,7 @@ function dataFromType( type, { chunkSize, objSize, delayInMsPerChunk } ) {
                 .fill( 0 )
                 .map( ( _, rindex ) => {
                     const struct = {
-                        'routeName': type,
+                        'routeId': type,
                         'obj': { id, rindex, index, type }
                     }
                     id++
@@ -73,10 +73,10 @@ function getDemoDataUnsorted( keys ) {
 }
 
 
-async function sendDemoData( { exporter, keys } ) {
-    const demoData = getDemoDataUnsorted( keys )
+async function sendDemoData( { exporter, keys, silent } ) {
     const delay = ( ms ) => new Promise( resolve => setTimeout( resolve, ms ) )
-    console.log( 'Start submitting...' )
+    const demoData = getDemoDataUnsorted( keys )
+    !silent ? console.log( 'sendDemoData: Start submitting...' ) : ''
     await demoData
         .reduce( async( acc, a, index ) => {
             const prom = await acc
@@ -84,16 +84,15 @@ async function sendDemoData( { exporter, keys } ) {
             await delay( delayInMsPerChunk )
             const result = objs
                 .map( a => {
-                    const { routeName, obj } = a
-                    exporter.sendData( { routeName, obj } )
+                    const { routeId, obj } = a
+                    exporter.sendData( { routeId, obj } )
                     return true
                 } )
         }, Promise.resolve( [] ) )
 
-    console.log( 'All submitted' )
+    !silent ? console.log( 'sendDemoData: All submitted' ) : ''
     return true
 }
-
 
 
 export { getDemoDataUnsorted, getDemoDataSorted, sendDemoData  }

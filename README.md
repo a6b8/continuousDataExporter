@@ -22,11 +22,11 @@ import { Exporter } from 'continuous-exporter'
 
 const routes = [
     {
-        'id': 'myRoute',
-        'requestHeaders': { 'authentification': 'Bearer 123' },
-        'requestType': 'get',
+        'routeId': 'myRoute',
+        'routeType': 'get',
         'requestUrl': 'http://localhost:3000/get',
-        'concurrentRequests': 5,
+        'requestHeaders': { 'authentification': 'Bearer 123' },
+        'concurrentRequestsPerLoop': 5,
         'delayPerLoopInMs': 5000
     }
 ]
@@ -35,7 +35,7 @@ const exporter = new Exporter()
 exporter.setRoutes( { routes } )
 exporter.sendData( { 
     'routeName': 'myRoute', 
-    'obj': { 'id': '1', 'foo': 'bar' }
+    'obj': { 'routeId': '1', 'foo': 'bar' }
 } )
 ```
 
@@ -61,7 +61,7 @@ exporter.sendData( {
 
 ## Routes
 
-Initialization of routes is done via `setRoutes( { routes=[] })`. There are currently 3 different methods that can be used for sending:
+Initialization of routes is done via `setRoutes( { routes=[] })`. There are currently 3 different `routeTypes` that can be used for sending:
 
 1. `get` Webhook: Here, a URL is retrieved via a `get` request and the data is passed in the URL.
 2. `post` Request: Here, data is transferred in the `body` as a `jsonObject` via a `post` request.
@@ -77,10 +77,10 @@ This type allows small amounts of data to be transmitted as `get` requests. For 
 
 | key                | type    | description                                    | required | validation                                                                                                                    |
 |--------------------|---------|------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------|
-| `name`               | string  | The name of the route endpoint.               | yes      | This parameter specifies the name under which the route is managed. It can only contain letters from a-zA-Z, numbers from 0-9, and hyphens. If multiple routes are created, it is important to ensure that the names are unique, as data is categorized using this name via `sendData`. |
-| `headers`            | object  | The header parameters for the request.        | no       | This parameter expects a valid key/value object. This parameter can also be used to pass a `Bearer` token if necessary. If no additional headers are needed, this parameter can be set to `{}` and will not be included. |
-| `type`             | string  | The type of HTTP request (e.g., 'get', 'post').| yes     | The entry `'get'` selects the type "Webhook".                                                                               |
-| `url`                | string  | The URL of the route endpoint.                | yes      | A valid URL must be provided here. For example: "http://localhost:3000/get"                                                  |
+| `routeId`               | string  | The name of the route endpoint.               | yes      | This parameter specifies the name under which the route is managed. It can only contain letters from a-zA-Z, numbers from 0-9, and hyphens. If multiple routes are created, it is important to ensure that the names are unique, as data is categorized using this name via `sendData`. |
+| `routeType`             | string  | The type of HTTP request (e.g., 'get', 'post').| yes     | The entry `'get'` selects the type "Webhook".                                                                               |
+| `requestHeaders`            | object  | The header parameters for the request.        | no       | This parameter expects a valid key/value object. This parameter can also be used to pass a `Bearer` token if necessary. If no additional headers are needed, this parameter can be set to `{}` and will not be included. |
+| `requestUrl`                | string  | The URL of the route endpoint.                | yes      | A valid URL must be provided here. For example: "http://localhost:3000/get"                                                  |
 | `concurrentRequests` | number  | The number of concurrent requests.            | yes      | This value specifies how many concurrent requests can be made. For example; `5`                                             |
 | `delayPerLoopInMs`          | number  | The delay between requests in milliseconds.   | yes      | This parameter defines the delay inserted between each loop. `concurrentRequests` can be used to specify how many requests are sent in one loop. |
 
@@ -91,11 +91,11 @@ This type allows small amounts of data to be transmitted as `get` requests. For 
 ...
 const routes = [
     {
-        'id': 'myName',
-        'requestHeaders': { 'authentification': 'Bearer 123' },
-        'requestType': 'get',
+        'routeId': 'myName',
+        'routeType': 'get',
         'requestUrl': 'http://localhost:3000/get',
-        'concurrentRequests': 5,
+        'requestHeaders': { 'authentification': 'Bearer 123' },
+        'concurrentRequestsPerLoop': 5,
         'delayPerLoopInMs': 5000
     }
 ]
@@ -121,11 +121,11 @@ With the `post` request, larger amounts of data can be transmitted in the `body`
 
 ```js
 const routes = [ {
-  'id': 'post',
+  'routeId': 'post',
   'requestHeaders': { 'authentification': 'Bearer abc' },
-  'requestType': 'post',
+  'routeType': 'post',
   'requestUrl': 'http://localhost:3000/post',
-  'concurrentRequests': 1,
+  'concurrentRequestsPerLoop': 1,
   'delayPerLoopInMs': 1000
 } ]
 ```
@@ -152,11 +152,11 @@ const routes = [ {
 
 ```js
 {
-    'id': 'local',
-    'requestType': 'local',
+    'routeId': 'local',
+    'routeType': 'local',
     'outFolder': '/out',
     'fileName': 'out.txt',
-    'concurrentRequests': 3,
+    'concurrentRequestsPerLoop': 3,
     'delayPerLoopInMs': 3000
 }
 ```

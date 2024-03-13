@@ -21,20 +21,21 @@ class Exporter {
     }
 
 
-    setRoutes( { routes, obj } ) {
+    setRoutes( { routes } ) {
+        // const [ messages, comments ] = this.#validateRoutes( { routes } )
         const [ messages, comments ] = this.#validateRoutes( { routes } )
         printMessages( { messages, comments } )
 
         this.#queue = routes
             .reduce( ( acc, a, index ) => {
-                acc[ a['name'] ] = { 
+                acc[ a['routeId'] ] = { 
                     ...a, 
                     'queue': [], 
                     'running': false, 
                     'nonce': 0,
                     'nonceSum': 0
                 }
-                delete acc[ a['name'] ]['name']
+                delete acc[ a['routeId'] ]['name']
                 return acc
             }, {} )
         this.#state['queueIsReady'] = true
@@ -43,18 +44,18 @@ class Exporter {
     }
 
 
-    sendData( { routeName, obj } ) {
-        const [ messages, comments ] = this.#validateSendData( { routeName, obj } )
+    sendData( { routeId, obj } ) {
+        const [ messages, comments ] = this.#validateSendData( { routeId, obj } )
         printMessages( { messages, comments } )
 
-        this.#queue[ routeName ]['queue'].push( obj )
-        this.#queue[ routeName ]['nonceSum']++
-        if( !this.#queue[ routeName ]['running'] ) {
-            !this.#silent ? printConsole( { 'first': `Route ${routeName}`, 'second': `start |           |` } ) : ''
-            this.#queue[ routeName ]['running'] = true
-            this.#startSending( { 'type': this.#queue[ routeName ]['type'], routeName } )
+        this.#queue[ routeId ]['queue'].push( obj )
+        this.#queue[ routeId ]['nonceSum']++
+        if( !this.#queue[ routeId ]['running'] ) {
+            !this.#silent ? printConsole( { 'first': `Route ${routeId}`, 'second': `start |           |` } ) : ''
+            this.#queue[ routeId ]['running'] = true
+            this.#startSending( { 'type': this.#queue[ routeId ]['type'], routeId } )
                 .then( a => {
-                    !this.#silent ? printConsole( { 'first': `Route ${routeName}`, 'second': `end   |           |` } ) : ''
+                    !this.#silent ? printConsole( { 'first': `Route ${routeId}`, 'second': `end   |           |` } ) : ''
                 } )
         }
 
@@ -62,24 +63,32 @@ class Exporter {
     }
 
 
-    async #startSending( { type, routeName } ) {
+    async #startSending( { type, routeId } ) {
         const delay = ( ms ) => new Promise( resolve => setTimeout( resolve, ms ) )
-        const { delayInMs, concurrentRequests } = this.#queue[ routeName ]
+        const { delayInMsPerLoop, concurrentRequestsPerLoop } = this.#queue[ routeId ]
 
-        while( this.#queue[ routeName ]['running'] ) {
-            const result = this.#queue[ routeName ]['queue'].slice( 0, concurrentRequests )
-            this.#queue[ routeName ]['queue'].splice( 0, concurrentRequests )
-            this.#queue[ routeName ]['nonce'] += result.length
+        while( this.#queue[ routeId ]['running'] ) {
+            const datas = this.#queue[ routeId ]['queue'].slice( 0, concurrentRequestsPerLoop )
+            this.#queue[ routeId ]['queue'].splice( 0, concurrentRequestsPerLoop )
+            this.#queue[ routeId ]['nonce'] += datas.length
+
+            const responses = await Promise.all( 
+                datas
+                    .map( async ( data, index ) => {
+                        const result = await this.#requestCentral( { routeId, data } )
+                        return result
+                    } )
+            )
 
             if( !this.#silent ) {
-                const { first, second } = this.#generateStatusMessage( { routeName, result } )
+                const { first, second } = this.#generateStatusMessage( { routeId, responses } )
                 printConsole( { first, second } )
             }
 
-            await delay( delayInMs )
+            await delay( delayInMsPerLoop )
 
-            if( this.#queue[ routeName ]['queue'].length === 0 ) {
-                this.#queue[ routeName ]['running'] = false
+            if( this.#queue[ routeId ]['queue'].length === 0 ) {
+                this.#queue[ routeId ]['running'] = false
             }
         }
 
@@ -87,166 +96,157 @@ class Exporter {
     }
 
 
-    #generateStatusMessage( { routeName, result } ) {
-        const nonce = this.#queue[routeName]['nonce']
-        const nonceSum = this.#queue[routeName]['nonceSum']
-        const percent = Math.round( ( nonce * 100 ) / nonceSum )
+    async #requestCentral( { routeId, data } ) {
+        const type = this.#queue[ routeId ]['routeType']
 
-        const spacer = new Array( 3 - `${percent}`.length )
-            .fill( ' ' )
-            .join( '' )
-        const percentStr = `${spacer}${percent}`
-   
-        const s = `${nonce}/${nonceSum}`
-        const n = 9 - s.length
-        let spacer2 = ( n > 0 ) ? new Array( n ).fill( ' ' ).join( '' ) : ''
+        let result = { 
+            'status': null, 
+            'response': null, 
+            data 
+        }
 
-        let first = '' 
-        first += `  ${routeName}`
+        switch( type ) {
+            case 'get': {
+                    const [ status, response ] = await this.#getRequest( { routeId, data } )
+                    result = { status, response, data }
+                }
+                break
+            case 'post': {
+                    const [ status, response ] = await this.#postRequest( { routeId, data } )
+                    result = { status, response, data }
+                }
+                break
+            case 'local': {
+                    const [ status, response ] = this.#localRequest( { routeId, data } )
+                    result = { status, response, data }
+                }
+                break
+            default:
+                console.log( `Unknown type: '${type}'.` )
+                break
+        }
 
-        let second = ''
-        second += `${percentStr} % | `
-        second += `${spacer2}${s} | `
-        second += ``
-        second += `${result.map( a => a['id'] ).join(', ')}`
-
-        return { first, second }
+        return result
     }
 
-/*
-    async #postRequest() {
-        console.log( 'Sending POST Request' )
-        const msg = this.#state['msg']
-        const response = await axios.post( `${this.#state['url']}/post`, msg )
-        console.log( 'Response:', response.data )
-        return response
+
+    async #postRequest( { routeId, data } ) {
+        let status
+        let response
+        try {
+            const r = await axios.post( 
+                this.#queue[ routeId ]['requestUrl'], 
+                data 
+            )
+            status = true
+            response = r.data
+        } catch( e ) {
+            status = false
+        }
+
+        return [ status, response ]
     }
 
 
-    async #getRequest( { routeName, obj } ) {
-        console.log( 'Sending GET Request URL' )
-        const msg = this.#state['msg']
-        const response = await axios.get( `${this.#state['url']}/get`, { 'params': msg } )
-        console.log( 'Response:', response.data )
-        return response
+    async #getRequest( { routeId, data } ) {
+        let status
+        let response
+        try {
+            const r = await axios.get( 
+                this.#queue[ routeId ]['requestUrl'], 
+                { 'params': data } 
+            )
+            status = true
+            response = r.data
+        } catch( e ) {
+            status = false
+        }
+
+        return [ status, response ]
     }
-*/
+
+
+    #localRequest( { routeId, data } ) {
+        return [ true, 'localRequest' ]
+    }
+
 
     #validateRoutes( { routes } ) {
         const messages = []
         const comments = []
 
         if( routes === undefined ) {
-            messages.push( `No routes defined.` )
-        } else if( Array.isArray( routes ) === false ) {
-            messages.push( `Routes must be an array.` )
+            messages.push( `Routes are undefined.` )
+        } else if( !Array.isArray( routes ) ) {
+            messages.push( `Routes are not type of 'array'.` )
         } else if( routes.length === 0 ) {
-            messages.push( `No routes defined.` )
+            messages.push( `Routes are empty.` )
         } else {
-            const validKeys = [ 
-                [ 'name', 'string' ], 
-                [ 'type', 'string' ],
-                [ 'concurrentRequests', 'number'], 
-                [ 'delayInMs', 'number' ]
-            ]
-            routes.forEach( ( route, index ) => {
-                if( !( typeof route === 'object' && route !== null ) ) {
-                    messages.push( `Route at index ${index} is not an object.` )
-                } else {
-                    validKeys.forEach( ( [ key, type ] ) => {
-                        if( route[ key ] === undefined ) {
-                            messages.push( `Route at index ${index} is missing key ${key}.` )
-                        } else if( typeof route[ key ] !== type ) {
-                            messages.push( `Route at index ${index} is not type of '${type}'.` )
+            const tests = routes.map( ( route, index ) => {
+                    if( typeof route === 'object' && route !== null ) {
+                        if( !Array.isArray( route ) ) {
+                            return Object.keys( route ).length > 0
                         }
-                    } )
-                }
-            } )
+                    }
+                    return false
+                } )
+                .every( a => a )
+            !tests ? messages.push( `Routes are not valid key/value objects.` ) : ''
         }
 
         if( messages.length !== 0 ) {
             return [ messages, comments ]
         }
 
-        routes.forEach( ( route, index ) => {
-            if( route['type'] === 'get' || route['type'] === 'post' ) {
-                if( route['url'] === undefined ) {
-                    messages.push( `Route at index ${index} is missing key 'url'.` )
-                } else if( typeof route['url'] !== 'string' ) {
-                    messages.push( `Route at index ${index} is not type of 'string'.` )
-                } else if( !isValidUrl( route['url'] ) ) {
-                    messages.push( `Route at index ${index} has an invalid URL.` )
-                }
-
-                if( route['headers'] === undefined ) {
-                    messages.push( `Route at index ${index} has no headers.` )
-                } else if( typeof route['headers'] !== 'object' ) {
-                    messages.push( `Route at index ${index} has headers that are not an object.` )
-                } else {
-                    const keys = Object.keys( route['headers'] )
-                    keys.forEach( key => {
-                        if( typeof route['headers'][ key ] !== 'string' ) {
-                            messages.push( `Route at index ${index} has a header with key '${key}' that is not a string.` )
-                        }
-                    } )
-                }
-            } else if( route['type'] === 'local' ) {
-                if( route['outFolder'] === undefined ) {
-                    messages.push( `Route at index ${index} is missing key 'outFolder'.` )
-                } else if( typeof route['outFolder'] !== 'string' ) {
-                    messages.push( `Route at index ${index} is not type of 'string'.` )
-                } else if( !this.#config['validation']['folder']['regex'].test( route['outFolder'] ) ) {
-                    messages.push( `Route at index ${index} has an invalid outFolder.` )
-                }
-
-                if( route['fileName'] === undefined ) {
-                    messages.push( `Route at index ${index} is missing key 'fileName'.` )
-                } else if( typeof route['fileName'] !== 'string' ) {
-                    messages.push( `Route at index ${index} is not type of 'string'.` )
-                } else if( !this.#config['validation']['fileName']['regex'].test( route['fileName'] ) ) {
-                    messages.push( `Route at index ${index} has an invalid fileName.`)
-                }
-            } else {
-                messages.push( `Route at index ${index} has an invalid name. Use 'get', 'post' or 'local'.` )
-            }
-        } )
-
-        if( messages.length !== 0 ) {
-            return [ messages, comments ]
-        }
-
-        const names = Object
-            .entries( 
-                routes
-                    .map( a => a['name'] )
-                    .reduce( ( acc, a, index ) => {
-                        if( !Object.hasOwn( acc, a ) ) {
-                            acc[ a ] = 1
+        routes
+            .forEach( ( route, index ) => {
+                const keys = [
+                    ...Object.keys( this.#config['validation']['default'] ).map( a => [ 'default', a ] ),
+                    ...Object.keys( this.#config['validation']['custom'][ route['routeType'] ] ).map( a => [ 'custom', a ] )
+                ]
+                    .forEach( ( b ) => {
+                        const [ type, keyName ] = b
+                        let validation 
+                        if( type === 'custom' ) {
+                            validation = this.#config['validation']['custom'][ route['routeType'] ][ keyName ]
+                        } else if( type === 'default' ) {
+                            validation = this.#config['validation']['default'][ keyName ]
                         } else {
-                            acc[ a ]++
+                            console.log( `Unknown type: '${type}'.` )
                         }
-                        return acc
-                    }, {} )
-            )
-            .filter( ( a, index ) => a[ 1 ] > 1 )
-            .forEach( ( a, index ) => {
-                messages.push( `Route name '${a[ 0 ]}' is used more than once.` )
+
+                        if( route[ keyName ] === undefined ) {
+                            messages.push( `[${index}] key: '${keyName}' value: '${route[ keyName ]}' is undefined.` )
+                        } else if( typeof route[ keyName ] !== validation['type'] ) {
+                            messages.push( `[${index}] key: '${keyName}' value: '${route[ keyName ]}' is not type of 'string'.` )
+                        } 
+
+                        if( validation['type'] === 'object' ) {
+                            try {
+                                JSON.stringify( route[ keyName ] )
+                            } catch( e ) {
+                                messages.push( `[${index}] key: '${keyName}' value: '${route[ keyName ]}' is not valid JSON object.` )
+                            }
+                        } else if( !validation['regex'].test( `${route[ keyName ]}` ) ) {
+                            messages.push( `[${index}] key: '${keyName}' value: '${route[ keyName ]}' is not valid. ${validation['message']}` )
+                        }
+                    } )
             } )
 
         return [ messages, comments ]
     }
 
 
-    #validateSendData( { routeName, obj, routes } ) {
+    #validateSendData( { routeId, obj, routes } ) {
         const messages = []
         const comments = []
 
-        if( routeName === undefined ) {
-            messages.push( `Route name is missing.` )
-        } else if( typeof routeName !== 'string' ) {
-            messages.push( `Route name is not type of 'string'.` )
-        } else if( this.#queue[ routeName ] === undefined ) {
-            messages.push( `Route name is not defined.` )
+        if( routeId === undefined ) {
+            messages.push( `RouteId is missing.` )
+        } else if( typeof routeId !== 'string' ) {
+            messages.push( `RouteId is not type of 'string'.` )
+        } else if( this.#queue[ routeId ] === undefined ) {
+            messages.push( `RouteId is not defined, add Route with setRoute() first.` )
         }
 
         if( messages.length !== 0 ) {
@@ -259,15 +259,47 @@ class Exporter {
             messages.push( `Object is not type of 'object'.` )
         } else if( Object.keys( obj ).length === 0 ) {
             messages.push( `Object is empty.` )
+        } else if( !Object.hasOwn( obj, 'id') ) {
+            comments.push( `Object has no 'id' property.` )
         }
 
         if( !this.#state['queueIsReady'] ) {
-            messages.push( `Routes are not defined.` )
+            messages.push( `Call '.setRoutes' first. Routes are not defined.` )
         }
 
         return [ messages, comments ]
     }
 
+
+    #generateStatusMessage( { routeId, responses } ) {
+        const nonce = this.#queue[routeId]['nonce']
+        const nonceSum = this.#queue[routeId]['nonceSum']
+        const percent = Math.round( ( nonce * 100 ) / nonceSum )
+
+        const m = 3 - `${percent}`.length
+        const spacer = ( m > -1 ) ? new Array( m ).fill( ' ' ).join( '' ) : ''
+        const percentStr = `${spacer}${percent}`
+   
+        const s = `${nonce}/${nonceSum}`
+        const n = 9 - s.length
+        let spacer2 = ( n > 0 ) ? new Array( n ).fill( ' ' ).join( '' ) : ''
+
+        let first = '' 
+        first += `  ${routeId}`
+
+        let second = ''
+        second += `${percentStr} % | `
+        second += `${spacer2}${s} | `
+        second += ``
+
+        second += responses.map( response => {
+            const { data, status } = response
+            return `${data['id']} (${status})` 
+        } )
+            .join( ', ' )
+
+        return { first, second }
+    }
 }
 
 

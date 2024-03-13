@@ -1,6 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 
+
 class Server {
     #config
     #app
@@ -31,7 +32,31 @@ class Server {
         this.#app.use( bodyParser.json() )
         this.#app.use( bodyParser.urlencoded( { 'extended': true } ) )
         this.#app.use( ( req, res, next ) => {
-            console.log( `${req.method} ${req.url}` )
+            let id = null
+            switch( req.method ) {
+                case 'GET':
+                    id = req.query['id']
+                    break
+                case 'POST':
+                    id = req.body['id']
+                    break
+                default:
+                    break
+            }
+
+            const n = this.#config['maxLength']
+            const a = 6 - `${req.method} `.length > 0 ? 6 - `${req.method} `.length : 0
+            const b = 4 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
+            const c = 4 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
+            let str = ''
+            str += `${req.method} `
+            str += new Array( a ).fill( ' ' ).join( '' )
+            str += new Array( b ).fill( ' ' ).join( '' )
+            str += `${id} `
+            str += new Array( c ).fill( ' ' ).join( '' )
+            str += `${req.url.length > n ? `${req.url.substring( 0, n )}...` : req.url} `
+
+            console.log( `${str}` )
             next()
         })
 
@@ -87,6 +112,7 @@ class Server {
 
 const ex = new Server( {
     'port': 3000,
-    'host': 'http://localhost'
+    'host': 'http://localhost',
+    'maxLength': 25
 } )
 ex.start()
