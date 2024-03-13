@@ -76,12 +76,14 @@ function getDemoDataUnsorted( keys ) {
 async function sendDemoData( { exporter, keys, silent } ) {
     const delay = ( ms ) => new Promise( resolve => setTimeout( resolve, ms ) )
     const demoData = getDemoDataUnsorted( keys )
-    !silent ? console.log( 'sendDemoData: Start submitting...' ) : ''
+    !silent ? console.log( '🏁 SCRIPT: Start submitting...' ) : ''
     await demoData
         .reduce( async( acc, a, index ) => {
             const prom = await acc
             const { delayInMsPerChunk, objs } = a
             await delay( delayInMsPerChunk )
+            console.log( `🚀 SEND: Chunk ${index + 1} of ${demoData.length}`)
+
             const result = objs
                 .map( a => {
                     const { routeId, obj } = a
@@ -90,7 +92,7 @@ async function sendDemoData( { exporter, keys, silent } ) {
                 } )
         }, Promise.resolve( [] ) )
 
-    !silent ? console.log( 'sendDemoData: All submitted' ) : ''
+    !silent ? console.log( '🏁 SCRIPT: All submitted' ) : ''
     return true
 }
 

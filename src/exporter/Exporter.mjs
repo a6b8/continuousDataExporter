@@ -1,23 +1,26 @@
 import { printMessages, isValidUrl, printConsole } from './../helpers/mixed.mjs'
 import { config } from './../data/config.mjs'
 import axios from 'axios'
+import EventEmitter from 'events'
 
 
-class Exporter {
+class Exporter extends EventEmitter {
     #config
     #queue
     #silent
     #state
 
 
-    constructor( silent=false ) {
+
+    constructor( silent=false, emitEvents=true ) {
+        super()
         this.#silent = silent
         this.#config = config
+
         this.#state = {
             'queueIsReady': false
         }
 
-        return true
     }
 
 
@@ -33,7 +36,8 @@ class Exporter {
                     'queue': [], 
                     'running': false, 
                     'nonce': 0,
-                    'nonceSum': 0
+                    'nonceSum': 0,
+                    'count': 0
                 }
                 delete acc[ a['routeId'] ]['name']
                 return acc
@@ -54,11 +58,12 @@ class Exporter {
         this.#queue[ routeId ]['queue'].push( obj )
         this.#queue[ routeId ]['nonceSum']++
         if( !this.#queue[ routeId ]['running'] ) {
-            !this.#silent ? printConsole( { 'first': `Route ${routeId}`, 'second': `start |           |` } ) : ''
+            !this.#silent ? printConsole( { 'first': `🌟 OPEN: Route ${routeId}`, 'second': `      |           |` } ) : ''
             this.#queue[ routeId ]['running'] = true
-            this.#startSending( { 'type': this.#queue[ routeId ]['type'], routeId } )
+            this.#startSending( { routeId } )
                 .then( a => {
-                    !this.#silent ? printConsole( { 'first': `Route ${routeId}`, 'second': `end   |           |` } ) : ''
+                    let first = `${this.#config['console']['emojis']['route']} CLOSE: ${routeId}`
+                    !this.#silent ? printConsole( { first, 'second': `      |           |` } ) : ''
                 } )
         }
 
@@ -66,7 +71,7 @@ class Exporter {
     }
 
 
-    async #startSending( { type, routeId } ) {
+    async #startSending( { routeId } ) {
         const delay = ( ms ) => new Promise( resolve => setTimeout( resolve, ms ) )
         const { delayInMsPerLoop, concurrentRequestsPerLoop } = this.#queue[ routeId ]
 
@@ -74,6 +79,7 @@ class Exporter {
             const datas = this.#queue[ routeId ]['queue'].slice( 0, concurrentRequestsPerLoop )
             this.#queue[ routeId ]['queue'].splice( 0, concurrentRequestsPerLoop )
             this.#queue[ routeId ]['nonce'] += datas.length
+            this.#queue[ routeId ]['count'] ++
 
             const responses = await Promise.all( 
                 datas
@@ -81,6 +87,15 @@ class Exporter {
                         const result = await this.#requestCentral( { routeId, data } )
                         return result
                     } )
+            )
+
+            this.emit( 
+                this.#config['events']['channelName'], 
+                {
+                    routeId,
+                    responses 
+                }
+                
             )
 
             if( !this.#silent ) {
@@ -293,19 +308,32 @@ class Exporter {
         const n = 9 - s.length
         let spacer2 = ( n > 0 ) ? new Array( n ).fill( ' ' ).join( '' ) : ''
 
-        let first = '' 
-        first += `  ${routeId}`
 
+        let first = ''
+        first += `${this.#config['console']['emojis']['loop']} ID: ${routeId} `
+        first += `(${this.#queue[ routeId ]['count']})`
+    
         let second = ''
         second += `${percentStr} % | `
         second += `${spacer2}${s} | `
         second += ``
+        second += responses
+            .reduce( ( acc, a, index, all ) => {
+                if( !Object.hasOwn( acc, a['status'] ) ) {
+                    acc[ a['status'] ] = []
+                }
+                acc[ a['status'] ].push( a['data']['id'] )
 
-        second += responses.map( response => {
-            const { data, status } = response
-            return `${data['id']} (${status})` 
-        } )
-            .join( ', ' )
+                if( index === all.length - 1 ) {
+                    acc = Object
+                        .entries( acc )
+                        .map( ( [ key, value ] ) => {
+                            return `${key}: ${value.join( ', ' )}`
+                        } )
+                        .join( ' | ' )
+                }
+                return acc
+            }, {} )
 
         return { first, second }
     }

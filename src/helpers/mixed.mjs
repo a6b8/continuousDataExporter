@@ -29,7 +29,8 @@ function printMessages( { messages=[], comments=[] } ) {
 
 function printConsole( { first, second } ) {
     if( first !== undefined ) {
-        const space = new Array( 25 - first.length ).fill( ' ' ).join( '' )
+        const n = 30 - first.length > 0 ? 30 - first.length : 0
+        const space = new Array( n ).fill( ' ' ).join( '' )
         process.stdout.write( `${first}${space}` )
     }
 

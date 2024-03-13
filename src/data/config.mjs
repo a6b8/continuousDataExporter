@@ -70,6 +70,15 @@ const config = {
                 }
             }
         }
+    },
+    'console': {
+        'emojis': {
+            'route': '🌟',
+            'loop': '🔁',
+        }
+    },
+    'events': {
+        'channelName': 'exporterResponse'
     }
 }
 
