@@ -44,9 +44,12 @@ class Exporter {
     }
 
 
-    sendData( { routeId, obj } ) {
+    sendData( { routeId, obj, strict=false } ) {
         const [ messages, comments ] = this.#validateSendData( { routeId, obj } )
         printMessages( { messages, comments } )
+        if( !strict && comments.length !== 0 ) {
+            return false
+        }
 
         this.#queue[ routeId ]['queue'].push( obj )
         this.#queue[ routeId ]['nonceSum']++
@@ -252,7 +255,7 @@ class Exporter {
         } else if( typeof routeId !== 'string' ) {
             messages.push( `RouteId is not type of 'string'.` )
         } else if( this.#queue[ routeId ] === undefined ) {
-            messages.push( `RouteId is not defined, add Route with setRoute() first.` )
+            comments.push( `RouteId with the value: ${routeId} is not defined, add Route with setRoute() first.` )
         }
 
         if( messages.length !== 0 ) {

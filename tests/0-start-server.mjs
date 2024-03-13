@@ -61,7 +61,7 @@ class Server {
             const n = this.#config['maxLength']
             const a = 6 - `${req.method} `.length > 0 ? 6 - `${req.method} `.length : 0
             const b = 4 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
-            const c = 4 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
+            const c = 6 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
             const d = 8 - `${authentification} `.length > 0 ? 8 - `${authentification} `.length : 0
 
             let str = ''
@@ -71,7 +71,7 @@ class Server {
             str += `${id} `
             str += new Array( d ).fill( ' ' ).join( '' )
             str += `${authentification} `
-            str += new Array( c ).fill( ' ' ).join( '' )
+            str += `  ` 
             str += `${req.url.length > n ? `${req.url.substring( 0, n )}...` : req.url} `
 
             console.log( `${str}` )
@@ -131,7 +131,7 @@ class Server {
 const ex = new Server( {
     'port': 3000,
     'host': 'http://localhost',
-    'maxLength': 25,
+    'maxLength': 20,
     'bearer': 123
 } )
 ex.start()
