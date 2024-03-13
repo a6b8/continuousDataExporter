@@ -6,7 +6,7 @@ const config = {
             'routeId': 'myGet',
             'routeType': 'get',
             'requestUrl': 'http://localhost:3000/get',
-            'requestHeaders': { 'authentification': 'Bearer 123' },
+            'requestHeaders': { 'authorization': 'Bearer 123' },
             'concurrentRequestsPerLoop': 5,
             'delayInMsPerLoop': 5000
         }
@@ -14,7 +14,7 @@ const config = {
             'routeId': 'myPost',
             'routeType': 'post',
             'requestUrl': 'http://localhost:3000/post',
-            'requestHeaders': { 'authentification': 'Bearer abc' },
+            'requestHeaders': { 'authorization': 'Bearer 123' },
             'concurrentRequestsPerLoop': 1,
             'delayInMsPerLoop': 2000
         }

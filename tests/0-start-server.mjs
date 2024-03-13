@@ -32,6 +32,20 @@ class Server {
         this.#app.use( bodyParser.json() )
         this.#app.use( bodyParser.urlencoded( { 'extended': true } ) )
         this.#app.use( ( req, res, next ) => {
+
+            let authentification = null
+            if( req.headers?.authorization ) {
+                const [ key, token ] = req.headers.authorization.split( ' ' )
+                if( `${token}` === `${this.#config['bearer']}` ) {
+                    authentification = 'true'
+                } else {
+                    authentification = 'false'
+                }
+            } else {
+                authentification = 'none'
+            }
+
+
             let id = null
             switch( req.method ) {
                 case 'GET':
@@ -48,17 +62,21 @@ class Server {
             const a = 6 - `${req.method} `.length > 0 ? 6 - `${req.method} `.length : 0
             const b = 4 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
             const c = 4 - `${id} `.length > 0 ? 4 - `${id} `.length : 0
+            const d = 8 - `${authentification} `.length > 0 ? 8 - `${authentification} `.length : 0
+
             let str = ''
             str += `${req.method} `
             str += new Array( a ).fill( ' ' ).join( '' )
             str += new Array( b ).fill( ' ' ).join( '' )
             str += `${id} `
+            str += new Array( d ).fill( ' ' ).join( '' )
+            str += `${authentification} `
             str += new Array( c ).fill( ' ' ).join( '' )
             str += `${req.url.length > n ? `${req.url.substring( 0, n )}...` : req.url} `
 
             console.log( `${str}` )
             next()
-        })
+        } )
 
         return true
     }
@@ -113,6 +131,7 @@ class Server {
 const ex = new Server( {
     'port': 3000,
     'host': 'http://localhost',
-    'maxLength': 25
+    'maxLength': 25,
+    'bearer': 123
 } )
 ex.start()

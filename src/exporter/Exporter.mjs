@@ -136,7 +136,10 @@ class Exporter {
         try {
             const r = await axios.post( 
                 this.#queue[ routeId ]['requestUrl'], 
-                data 
+                data,
+                {
+                    'headers': this.#queue[ routeId ]['requestHeaders']
+                }
             )
             status = true
             response = r.data
@@ -154,7 +157,10 @@ class Exporter {
         try {
             const r = await axios.get( 
                 this.#queue[ routeId ]['requestUrl'], 
-                { 'params': data } 
+                { 
+                    'params': data,
+                    'headers': this.#queue[ routeId ]['requestHeaders']
+                } 
             )
             status = true
             response = r.data
