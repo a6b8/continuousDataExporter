@@ -2,41 +2,21 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 # Continuous Exporter
-This module helps efficiently process continuous incoming data packets. And depending on the `type`, it sends with the corresponding method.
+
 
 ## Features:
-- Integrated queue for different types of requests.
-- Internal state management
-- Sending data via `get` request as a webhook, `post` request with data as `body`, and `local` saving of data on the disk.
-- Optionally passing modified headers for authentication through a `Bearer` token.
+
 
 ## Quickstart
 
 ```
 npm i continuous-exporter
 ```
-This example shows a minimal example that creates a route via `setRoutes` and then sends a request into the queue via `sendData` and then processes it.
+
 
 ```js
-import { Exporter } from 'continuous-exporter'
 
-const routes = [
-    {
-        'routeId': 'myRoute',
-        'routeType': 'get',
-        'requestUrl': 'http://localhost:3000/get',
-        'requestHeaders': { 'authentification': 'Bearer 123' },
-        'concurrentRequestsPerLoop': 5,
-        'delayPerLoopInMs': 5000
-    }
-]
 
-const exporter = new Exporter()
-exporter.setRoutes( { routes } )
-exporter.sendData( { 
-    'routeName': 'myRoute', 
-    'obj': { 'routeId': '1', 'foo': 'bar' }
-} )
 ```
 
 ## Table of Contents
@@ -47,11 +27,17 @@ exporter.sendData( {
   - [Routes](#routes)
     - [Webhook (get)](#webhook-get)
     - [Post Request](#post-request)
-    - [Local](#local)
+    - [File](#file)
   - [Methods](#methods)
     - [constructor()](#constructor)
     - [setRoutes()](#setroutes)
     - [sendData()](#senddata)
+    - [getConfig()](#getconfig)
+    - [setConfig()](#setconfig)
+    - [printRouteStatus()](#printroutestatus)
+  - [Events](#events)
+    - [exporterRouteStatus](#exporterroutestatus)
+    - [exporterRouteLoopUpdate](#exporterrouteloopupdate)
   - [DemoData](#demodata)
     - [getDemoDataUnsorted()](#getdemodataunsorted)
     - [getDemoDataSorted()](#getdemodatasorted)
@@ -65,7 +51,7 @@ Initialization of routes is done via `setRoutes( { routes=[] })`. There are curr
 
 1. `get` Webhook: Here, a URL is retrieved via a `get` request and the data is passed in the URL.
 2. `post` Request: Here, data is transferred in the `body` as a `jsonObject` via a `post` request.
-3. `local`: Here, the data can be stored in a folder.
+3. `file`: Here, the data can be stored in a folder.
 
 ### Webhook (get)
 
@@ -131,7 +117,7 @@ const routes = [ {
 ```
 
 
-### Local
+### File
 
 
 **Keys**
@@ -165,71 +151,23 @@ const routes = [ {
 ## Methods
 
 ### constructor()
-Description
-
-**Method**
-```js
-.constructor( silent=false )
-```
-
-| Key                | Type     | Description                                       | Required |
-|--------------------|----------|---------------------------------------------------|----------|
-| silent        | array of strings    | Array of items. Example `[ '' ]` | Yes      |
-
-
-**Example**
-```js
-true
-```
-
-**Returns**
-```js
-```
-
 
 ### setRoutes()
-Description
-
-**Method**
-```js
-.setRoutes( { routes, obj } )
-```
-
-| Key                | Type     | Description                                       | Required |
-|--------------------|----------|---------------------------------------------------|----------|
-| routes        |  |  | Yes      |
-
-
-**Example**
-```js
-true
-```
-
-**Returns**
-```js
-```
 
 ### sendData()
-Description
 
-**Method**
-```js
-.sendData( { routeName, obj } )
-```
+### getConfig()
 
-| Key                | Type     | Description                                       | Required |
-|--------------------|----------|---------------------------------------------------|----------|
-| varName        |    |  | Yes      |
+### setConfig()
+
+### printRouteStatus()
 
 
-**Example**
-```js
-true
-```
+## Events
 
-**Returns**
-```js
-```
+### exporterRouteStatus
+
+### exporterRouteLoopUpdate
 
 
 ## DemoData
