@@ -18,7 +18,6 @@ exporter.sendData( {
     'obj': { 'id': '1', 'foo': 'bar' }
 } )
 
-
 exporter.on(
     'exporterRouteLoopUpdate', 
     ( eventResponse ) => {
@@ -32,8 +31,6 @@ exporter.on(
     } 
 )
 
-
-// wait for 5000 ms to let the exporter send the data
 
 const delay = 5000
 await new Promise( resolve => setTimeout( resolve, delay ) )
