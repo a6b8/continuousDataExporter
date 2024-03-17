@@ -31,7 +31,6 @@ exporter.on(
     } 
 )
 
-
 const delay = 5000
 await new Promise( resolve => setTimeout( resolve, delay ) )
 console.log( 'Event not received.' )
