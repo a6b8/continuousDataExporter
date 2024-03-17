@@ -258,7 +258,7 @@ class Exporter extends EventEmitter {
                 const [ value, key ] = a
                 if( value === undefined ) {
                     messages.push( `Constructor variable '${key}' is undefined.` )
-                } else this.if( typeof value !== 'boolean' ) {
+                } else if( typeof value !== 'boolean' ) {
                     messages.push( `Constructor variable '${key}' is not type of 'boolean'.` )
                 }
             } )
