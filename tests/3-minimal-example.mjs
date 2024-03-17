@@ -23,7 +23,6 @@ const exporter = new Exporter( { 'silent': false, 'emitEvents': true })
 exporter.setRoutes( { routes } )
 
 /*
-// 
 exporter.sendData( { 
     'routeId': 'myGet', 
     'obj': { 'id': '1', 'foo': 'bar' }

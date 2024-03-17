@@ -54,7 +54,7 @@ const config = {
                     'type': 'object',
                     'message': 'The requestHeaders must be a valid JSON object.'
                 }
-            },
+            }, 
             'file': {
                 'destinationFolder': {
                     'regex': /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\/[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\/$/,

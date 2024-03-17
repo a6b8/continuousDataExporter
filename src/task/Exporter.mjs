@@ -474,7 +474,7 @@ class Exporter extends EventEmitter {
 
         return true
     }
-}
+} 
 
 
 export { Exporter }
