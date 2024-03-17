@@ -13,15 +13,29 @@ const routes = [
 
 const exporter = new Exporter( { 'silent': false, 'emitEvents': true } )
 exporter.setRoutes( { routes } )
-const result = exporter.sendData( { 
+exporter.sendData( { 
     'routeId': 'myRoute', 
     'obj': { 'id': '1', 'foo': 'bar' }
 } )
 
-if( result === true ) {
-    console.log( 'Success' )
-    process.exit( 0 )
-} else {
-    console.log( 'Failure' )
-    process.exit( 1 )
-}
+
+exporter.on(
+    'exporterRouteLoopUpdate', 
+    ( eventResponse ) => {
+        exporter.printRouteStatus( {
+            'symbol': `📅`, 
+            'operation': 'Event',
+            eventResponse
+        } )
+        console.log( 'Success' )
+        process.exit( 0 )
+    } 
+)
+
+
+// wait for 5000 ms to let the exporter send the data
+
+const delay = 5000
+await new Promise( resolve => setTimeout( resolve, delay ) )
+console.log( 'Event not received.' )
+process.exit( 1 )
