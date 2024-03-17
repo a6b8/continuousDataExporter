@@ -1,3 +1,77 @@
+import { printStatus } from './../index.mjs'
+
+
+const config = {
+    'routes': [
+        {
+            'routeId': 'myGetAuthTrue',
+            'routeType': 'get',
+            'requestUrl': 'http://localhost:3000/get',
+            'requestHeaders': { 'authorization': 'Bearer 123' },
+            'concurrentRequestsPerLoop': 5,
+            'delayInMsPerLoop': 10
+        }
+        ,{
+            'routeId': 'myGetAuthFalse',
+            'routeType': 'get',
+            'requestUrl': 'http://localhost:3000/get',
+            'requestHeaders': { 'authorization': 'Bearer abc' },
+            'concurrentRequestsPerLoop': 2,
+            'delayInMsPerLoop': 10
+        }
+        ,{
+            'routeId': 'myGetNoAuth',
+            'routeType': 'get',
+            'requestUrl': 'http://localhost:3000/get',
+            'requestHeaders': {},
+            'concurrentRequestsPerLoop': 1,
+            'delayInMsPerLoop': 10
+        }
+        ,{
+            'routeId': 'myPostAuthTrue',
+            'routeType': 'post',
+            'requestUrl': 'http://localhost:3000/post',
+            'requestHeaders': { 'authorization': 'Bearer 123' },
+            'concurrentRequestsPerLoop': 5,
+            'delayInMsPerLoop': 20
+        }
+        ,{
+            'routeId': 'myPostAuthFalse',
+            'routeType': 'post',
+            'requestUrl': 'http://localhost:3000/post',
+            'requestHeaders': { 'authorization': 'Bearer abc' },
+            'concurrentRequestsPerLoop': 2,
+            'delayInMsPerLoop': 25
+        }
+        ,{
+            'routeId': 'myPostNoAuth',
+            'routeType': 'post',
+            'requestUrl': 'http://localhost:3000/post',
+            'requestHeaders': {},
+            'concurrentRequestsPerLoop': 1,
+            'delayInMsPerLoop': 30
+        }
+        ,{
+            'routeId': 'myLocal',
+            'routeType': 'local',
+            'destinationFolder': 'output/key/',
+            'destinationFileName': 'out.txt',
+            'concurrentRequestsPerLoop': 3,
+            'delayInMsPerLoop': 10
+        }
+    ],
+    'keys': [
+        [ 'myGetAuthTrue', { chunkSize: 10, objSize: 200, delayInMsPerChunk: 500 } ],
+        [ 'myGetAuthFalse', { chunkSize: 1, objSize: 9, delayInMsPerChunk: 500 } ],
+        [ 'myGetNoAuth', { chunkSize: 1, objSize: 9, delayInMsPerChunk: 500 } ],
+        [ 'myPostAuthTrue', { chunkSize: 1, objSize: 9, delayInMsPerChunk: 500 } ],
+        [ 'myPostAuthFalse', { chunkSize: 1, objSize: 9, delayInMsPerChunk: 500 } ],
+        [ 'myPostNoAuth', { chunkSize: 1, objSize: 9, delayInMsPerChunk: 500 } ],
+        [ 'wrongRouteId', { chunkSize: 1, objSize: 1, delayInMsPerChunk: 500 } ]
+    ]
+}
+
+
 function dataFromType( type, { chunkSize, objSize, delayInMsPerChunk } ) {
     let id = 0
     const chunks = new Array( chunkSize )
@@ -76,13 +150,24 @@ function getDemoDataUnsorted( keys ) {
 async function sendDemoData( { exporter, keys, silent } ) {
     const delay = ( ms ) => new Promise( resolve => setTimeout( resolve, ms ) )
     const demoData = getDemoDataUnsorted( keys )
-    !silent ? console.log( '🏁 SCRIPT: Start submitting...' ) : ''
+
+    if( !silent ) {
+        printStatus( { symbol: '🚀', operation: 'Start', routeId: 'Script' } )
+    }
+
     await demoData
         .reduce( async( acc, a, index ) => {
             const prom = await acc
             const { delayInMsPerChunk, objs } = a
             await delay( delayInMsPerChunk )
-            console.log( `🚀 SEND: Chunk ${index + 1} of ${demoData.length}`)
+
+            if( !silent ) {
+                printStatus( { 
+                    symbol: '🚀', 
+                    operation: 'Send', 
+                    routeId: `Chunk ${index + 1} of ${demoData.length}`
+                } )
+            }
 
             const result = objs
                 .map( a => {
@@ -92,9 +177,21 @@ async function sendDemoData( { exporter, keys, silent } ) {
                 } )
         }, Promise.resolve( [] ) )
 
-    !silent ? console.log( '🏁 SCRIPT: All submitted' ) : ''
+    if( !silent ) {
+        printStatus( { symbol: '🏁', operation: 'Finished', routeId: 'Script' } )
+    }
+
     return true
 }
 
 
-export { getDemoDataUnsorted, getDemoDataSorted, sendDemoData  }
+function getDemoRoutes() {
+    return config['routes']
+}
+
+function getDemoKeys() {
+    return config['keys']
+}
+
+
+export { getDemoDataUnsorted, getDemoDataSorted, sendDemoData, getDemoRoutes, getDemoKeys }

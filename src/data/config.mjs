@@ -73,12 +73,21 @@ const config = {
     },
     'console': {
         'emojis': {
-            'route': '🌟',
+            'Open': '🌟',
+            'Closed': '🔒',
             'loop': '🔁',
-        }
+        },
+        'table': [ 
+            [ 12, 'left' ],
+            [ 20, 'left' ],
+            [ 4, 'right' ],
+            [ 10, 'right' ],
+            [ 6, 'left' ]
+        ]
     },
     'events': {
-        'channelName': 'exporterResponse'
+        'routeStatus': 'exporterRouteStatus',
+        'routeLoopUpdate': 'exporterRouteLoopUpdate',
     }
 }
 

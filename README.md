@@ -154,8 +154,8 @@ const routes = [ {
 {
     'routeId': 'local',
     'routeType': 'local',
-    'outFolder': '/out',
-    'fileName': 'out.txt',
+    'destinationFolder': '/out',
+    'destinationFileName': 'out.txt',
     'concurrentRequestsPerLoop': 3,
     'delayPerLoopInMs': 3000
 }
