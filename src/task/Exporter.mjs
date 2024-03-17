@@ -2,6 +2,7 @@ import { printMessages, getSpace, printStatus } from './../helpers/mixed.mjs'
 import { config } from './../data/config.mjs'
 import axios from 'axios'
 import EventEmitter from 'events'
+import fs from 'fs'
 
 
 class Exporter extends EventEmitter {
@@ -187,8 +188,8 @@ class Exporter extends EventEmitter {
                     result = { status, response, data }
                 }
                 break
-            case 'local': {
-                    const [ status, response ] = this.#requestLocal( { routeId, data } )
+            case 'file': {
+                    const [ status, response ] = this.#requestFile( { routeId, data } )
                     result = { status, response, data }
                 }
                 break
@@ -241,8 +242,49 @@ class Exporter extends EventEmitter {
     }
 
 
-    #requestLocal( { routeId, data } ) {
-        return [ true, 'localRequest' ]
+    #requestFile( { routeId, data } ) {
+        let status
+        let response
+
+        let filePath = `${this.#queue[ routeId ]['destinationFileName']}`
+            .match( /{{(.*?)}}/g )
+            .map( match => match.replace( /{{|}}/g, '' ) )
+            .reduce( ( acc, key, index, all ) => {
+                const placeholder = `{{${key}}}`
+                if( key.startsWith( 'ex_unixTime' ) ) {
+                    acc = acc.replaceAll( placeholder, `${new Date().getTime()}` )
+                } else {
+                    acc = acc.replaceAll( placeholder, `${data[ key ]}` )
+                }
+
+                if( index === all.length - 1 ) {
+                    acc = `${this.#queue[ routeId ]['destinationFolder']}${acc}`
+                }
+                return acc
+            }, `${this.#queue[ routeId ]['destinationFileName']}` )
+
+        fs.mkdirSync( 
+            `${this.#queue[ routeId ]['destinationFolder']}`, 
+            { 'recursive': true }
+        )
+
+        if( fs.existsSync( filePath ) ) {
+            console.log( 'File already exists.' )
+        } else {
+            try {
+                const str = JSON.stringify( { data }, null, 4 )
+                fs.writeFileSync( filePath, str )
+                console.log( 'File created and data written successfully.' )
+                response = filePath
+                status = true
+            } catch( err ) {
+                console.error( 'Error writing to file:', err )
+                status = false
+
+            }
+        }
+
+        return [ status, response ]
     }
 
 

@@ -8,7 +8,7 @@ const config = {
                 'message': 'The routeId must consist only of letters (both uppercase and lowercase) or hyphens.'
             },
             'routeType': {
-                'regex': /^(get|post|local)$/,
+                'regex': /^(get|post|file)$/,
                 'default': 'get',
                 'type': 'string',
                 'message': 'The routeType must be either "get", "post" or "local".'
@@ -55,7 +55,7 @@ const config = {
                     'message': 'The requestHeaders must be a valid JSON object.'
                 }
             },
-            'local': {
+            'file': {
                 'destinationFolder': {
                     'regex': /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\/[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\/$/,
                     'default': 'output/second/',
@@ -63,10 +63,10 @@ const config = {
                     'message': 'The destinationFolder must consist only of letters (both uppercase and lowercase), numbers or hyphens and must end with a forward slash.'
                 },
                 'destinationFileName': {
-                    'regex': /^[a-zA-Z0-9-{{}}.\/]*$/,
+                    'regex': /^[a-zA-Z0-9.\-{}_]+$/,
                     'default': 'output-{{key}}-{{json}}.txt',
                     'type': 'string',
-                    'message': 'The destinationFileName must consist only of letters (both uppercase and lowercase), numbers, hyphens, dots or forward slashes.'
+                    'message': 'The destinationFileName must consist only of letters (both uppercase and lowercase), numbers, hyphens, underscores, dots or curly braces.'
                 }
             }
         }
