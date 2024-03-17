@@ -11,7 +11,7 @@ const routes = [
     }
 ]
 
-const exporter = new Exporter()
+const exporter = new Exporter( { 'silent': false, 'emitEvents': true } )
 exporter.setRoutes( { routes } )
 const result = exporter.sendData( { 
     'routeId': 'myRoute', 

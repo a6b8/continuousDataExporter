@@ -11,7 +11,7 @@ class Exporter extends EventEmitter {
     #state
 
 
-    constructor( { silent=false, emitEvents=true } ) {
+    constructor( { silent, emitEvents } ) {
         super()
         const [ messages, comments ] = this.#validateConstructor( { silent, emitEvents } )
 
